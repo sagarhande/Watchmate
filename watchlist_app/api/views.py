@@ -2,35 +2,82 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework import mixins
+from rest_framework.exceptions import ValidationError
+# from rest_framework import mixins
 from rest_framework import generics
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 
+from watchlist_app.api.permissions import AdminOrReadOnly, ReviewUserOrReadOnly
 from watchlist_app.models import WatchList, StreamPlatform, Review
 from watchlist_app.api.serializers import WatchListSerializer, StreamPlatformSerializer, ReviewSerializer
 
 
-class ReviewDetail(mixins.RetrieveModelMixin, generics.GenericAPIView):
-    queryset = Review.objects.all()
+class ReviewCreate(generics.CreateAPIView):
+    # queryset = Review.objects.all()
+    serializer_class = ReviewSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Review.objects.all()
+
+    def perform_create(self, serializer):
+        pk = self.kwargs['pk']
+        watchlist = WatchList.objects.get(pk=pk)
+
+        review_user = self.request.user
+        review_queryset = Review.objects.filter(watchlist=watchlist, review_user=review_user)
+        if review_queryset.exists():
+            raise ValidationError("You have already reviewed this show")
+
+        if watchlist.number_rating == 0:
+            watchlist.avg_rating = serializer.validated_data['rating']
+        else:
+            watchlist.avg_rating = (watchlist.avg_rating + serializer.validated_data['rating'])/2
+
+        watchlist.number_rating = watchlist.number_rating + 1
+        watchlist.save()
+
+        serializer.save(review_user=review_user, watchlist=watchlist)
+
+
+class ReviewList(generics.ListAPIView):
+    # queryset = Review.objects.all()
     serializer_class = ReviewSerializer
 
-    def get(self, request, *args, **kwargs):
-        return self.retrieve(request, *args, **kwargs)
+    def get_queryset(self):
+        pk = self.kwargs['pk']
+        return Review.objects.filter(watchlist=pk)
 
 
-# This is a Class based generic view example
-class ReviewList(mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView):
+class ReviewDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
+    permission_classes = [ReviewUserOrReadOnly]
 
-    def get(self, request, *args, **kwargs):
-        return self.list(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        return self.create(request, *args, **kwargs)
+# class ReviewDetail(mixins.RetrieveModelMixin, generics.GenericAPIView):
+#     queryset = Review.objects.all()
+#     serializer_class = ReviewSerializer
+#
+#     def get(self, request, *args, **kwargs):
+#         return self.retrieve(request, *args, **kwargs)
+#
+#
+# # This is a Class based generic view example
+# class ReviewList(mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView):
+#     queryset = Review.objects.all()
+#     serializer_class = ReviewSerializer
+#
+#     def get(self, request, *args, **kwargs):
+#         return self.list(request, *args, **kwargs)
+#
+#     def post(self, request, *args, **kwargs):
+#         return self.create(request, *args, **kwargs)
 
 
 # Below are class based APIView examples
 class StreamPlatformAV(APIView):
+    permission_classes = [AdminOrReadOnly]
+
     def get(self, request):
         platforms = StreamPlatform.objects.all()
         serializer = StreamPlatformSerializer(platforms, many=True)
@@ -46,6 +93,7 @@ class StreamPlatformAV(APIView):
 
 
 class StreamPlatformDetailsAV(APIView):
+    permission_classes = [AdminOrReadOnly]
 
     def get(self, request, pk):
         try:
@@ -78,6 +126,7 @@ class StreamPlatformDetailsAV(APIView):
 
 
 class WatchListAV(APIView):
+    permission_classes = [AdminOrReadOnly]
 
     def get(self, request):
         shows = WatchList.objects.all()
@@ -94,6 +143,7 @@ class WatchListAV(APIView):
 
 
 class WatchDetailsAV(APIView):
+    permission_classes = [AdminOrReadOnly]
 
     def get(self, request, pk):
         try:
