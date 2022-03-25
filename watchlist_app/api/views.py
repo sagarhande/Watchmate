@@ -54,6 +54,21 @@ class ReviewDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = ReviewSerializer
     permission_classes = [ReviewUserOrReadOnly]
 
+    def perform_destroy(self, instance):
+        watchlist = WatchList.objects.get(pk=instance.watchlist.pk)
+        if watchlist.number_rating > 1:
+            watchlist.avg_rating = ((watchlist.avg_rating * watchlist.number_rating)-instance.rating)/(watchlist.number_rating-1)
+            watchlist.number_rating -= 1
+        else:
+            watchlist.avg_rating = 0
+            watchlist.number_rating = 0
+        watchlist.save()
+        instance.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+
+
 # class ReviewDetail(mixins.RetrieveModelMixin, generics.GenericAPIView):
 #     queryset = Review.objects.all()
 #     serializer_class = ReviewSerializer

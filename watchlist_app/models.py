@@ -30,7 +30,7 @@ class WatchList(models.Model):
 class Review(models.Model):
     """Model for watchlist review"""
     review_user = models.ForeignKey(User, on_delete=models.CASCADE)
-    rating = models.PositiveIntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
+    rating = models.FloatField(validators=[MinValueValidator(1), MaxValueValidator(5)])
     description = models.TextField()
     watchlist = models.ForeignKey(WatchList, on_delete=models.CASCADE, related_name="reviews")
     active = models.BooleanField(default=True)
