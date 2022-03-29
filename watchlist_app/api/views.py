@@ -7,11 +7,37 @@ from rest_framework.exceptions import ValidationError
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework.throttling import UserRateThrottle, AnonRateThrottle
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters
 
 from watchlist_app.api.throttling import ReviewCreateThrottle,WatchDetailsThrottle
 from watchlist_app.api.permissions import AdminOrReadOnly, ReviewUserOrReadOnly
 from watchlist_app.models import WatchList, StreamPlatform, Review
 from watchlist_app.api.serializers import WatchListSerializer, StreamPlatformSerializer, ReviewSerializer
+
+
+class UserReview(generics.ListAPIView):
+    queryset = Review.objects.all()
+    serializer_class = ReviewSerializer
+
+    # Below is for searching
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['review_user__username', 'watchlist__title']
+
+    # below is for django-filtering i.e. using django-filter library
+    # filter_backends = [DjangoFilterBackend]
+    # filterset_fields = ['review_user__username', 'watchlist__title']
+
+    # Below is example of basic filtering
+    # def get_queryset(self):
+    #     username = self.kwargs['username']
+    #     return Review.objects.filter(review_user__username=username)
+    #
+    # def get_queryset(self):
+    #     username = self.request.query_params.get('username')
+    #     return Review.objects.filter(review_user__username=username)
+
+
 
 
 class ReviewCreate(generics.CreateAPIView):
@@ -46,7 +72,7 @@ class ReviewCreate(generics.CreateAPIView):
 class ReviewList(generics.ListAPIView):
     # queryset = Review.objects.all()
     serializer_class = ReviewSerializer
-    throttle_classes = [UserRateThrottle,AnonRateThrottle]
+    throttle_classes = [UserRateThrottle, AnonRateThrottle]
 
     def get_queryset(self):
         pk = self.kwargs['pk']
