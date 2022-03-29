@@ -6,7 +6,9 @@ from rest_framework.exceptions import ValidationError
 # from rest_framework import mixins
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
+from rest_framework.throttling import UserRateThrottle, AnonRateThrottle
 
+from watchlist_app.api.throttling import ReviewCreateThrottle,WatchDetailsThrottle
 from watchlist_app.api.permissions import AdminOrReadOnly, ReviewUserOrReadOnly
 from watchlist_app.models import WatchList, StreamPlatform, Review
 from watchlist_app.api.serializers import WatchListSerializer, StreamPlatformSerializer, ReviewSerializer
@@ -16,6 +18,7 @@ class ReviewCreate(generics.CreateAPIView):
     # queryset = Review.objects.all()
     serializer_class = ReviewSerializer
     permission_classes = [IsAuthenticated]
+    throttle_classes = [ReviewCreateThrottle]  # custom throttling
 
     def get_queryset(self):
         return Review.objects.all()
@@ -43,6 +46,7 @@ class ReviewCreate(generics.CreateAPIView):
 class ReviewList(generics.ListAPIView):
     # queryset = Review.objects.all()
     serializer_class = ReviewSerializer
+    throttle_classes = [UserRateThrottle,AnonRateThrottle]
 
     def get_queryset(self):
         pk = self.kwargs['pk']
@@ -53,6 +57,7 @@ class ReviewDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
     permission_classes = [ReviewUserOrReadOnly]
+    throttle_classes = [UserRateThrottle, AnonRateThrottle]
 
     def perform_destroy(self, instance):
         watchlist = WatchList.objects.get(pk=instance.watchlist.pk)
@@ -92,6 +97,7 @@ class ReviewDetail(generics.RetrieveUpdateDestroyAPIView):
 # Below are class based APIView examples
 class StreamPlatformAV(APIView):
     permission_classes = [AdminOrReadOnly]
+    throttle_classes = [UserRateThrottle, AnonRateThrottle]
 
     def get(self, request):
         platforms = StreamPlatform.objects.all()
@@ -159,6 +165,7 @@ class WatchListAV(APIView):
 
 class WatchDetailsAV(APIView):
     permission_classes = [AdminOrReadOnly]
+    throttle_classes = [WatchDetailsThrottle]
 
     def get(self, request, pk):
         try:

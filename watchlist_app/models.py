@@ -17,6 +17,7 @@ class WatchList(models.Model):
     """Model for entity such as Movie, Podcast, Webseries etc """
     title = models.CharField(max_length=50)
     storyline = models.TextField()
+    hashtag = models.CharField(max_length=100)
     platform = models.ForeignKey(StreamPlatform, on_delete=models.CASCADE, related_name="watchlist")
     avg_rating = models.FloatField(default=0)
     number_rating = models.PositiveIntegerField(default=0)
