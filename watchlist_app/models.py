@@ -13,7 +13,6 @@ class StreamPlatform(models.Model):
     def __str__(self):
         return self.name
 
-
 class WatchList(models.Model):
     """Model for entity such as Movie, Podcast, Webseries etc """
     title = models.CharField(max_length=50)
