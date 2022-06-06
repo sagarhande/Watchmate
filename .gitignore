@@ -1,3 +1,15 @@
 
 __pycache__
-
+watchlist_app/__pycache__/__init__.cpython-38.pyc
+watchlist_app/__pycache__/admin.cpython-38.pyc
+watchlist_app/__pycache__/models.cpython-38.pyc
+watchlist_app/api/__pycache__/permissions.cpython-38.pyc
+watchlist_app/api/__pycache__/serializers.cpython-38.pyc
+watchlist_app/api/__pycache__/urls.cpython-38.pyc
+watchlist_app/api/__pycache__/views.cpython-38.pyc
+watchlist_app/migrations/__pycache__/0001_initial.cpython-38.pyc
+watchlist_app/migrations/__pycache__/__init__.cpython-38.pyc
+watchmate/__pycache__/__init__.cpython-38.pyc
+watchmate/__pycache__/settings.cpython-38.pyc
+watchmate/__pycache__/urls.cpython-38.pyc
+watchmate/__pycache__/wsgi.cpython-38.pyc
