@@ -19,6 +19,9 @@ class WatchListSerializer(serializers.ModelSerializer):
         model = WatchList
         fields = "__all__"
 
+    def create(self, validated_data):
+        return WatchList.objects.create(**validated_data)
+
 
 class StreamPlatformSerializer(serializers.ModelSerializer):
     # below field is example of nested serialization

@@ -1,5 +1,5 @@
 # from rest_framework.decorators import api_view
-from rest_framework.views import APIView
+# from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
@@ -125,6 +125,7 @@ class WatchListGV(generics.ListCreateAPIView):
     # filter_backends = [filters.SearchFilter]
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['title', 'hashtag', 'avg_rating', 'platform__name']
+    permission_classes = [AdminOrReadOnly]
     pagination_class = WatchListPagination
 
 
