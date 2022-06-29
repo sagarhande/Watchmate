@@ -12,8 +12,8 @@ urlpatterns = [
     path('platforms/', StreamPlatformGV.as_view(), name='platform-list'),
     path('platforms/<int:pk>/', StreamPlatformDetailsGV.as_view(), name='platform-details'),
 
-    path('<int:pk>/review-create/', ReviewCreate.as_view(), name='show-reviews'),
-    path('<int:pk>/reviews/', ReviewList.as_view(), name='show-reviews'),
+    path('<int:pk>/review-create/', ReviewCreate.as_view(), name='create-show-reviews'),
+    path('<int:pk>/reviews/', ReviewList.as_view(), name='show-reviews-list'),
     path('review/<int:pk>/', ReviewDetail.as_view(), name='review-detail'),
     path('reviews/', UserReview.as_view(), name='user-review-list'),
 

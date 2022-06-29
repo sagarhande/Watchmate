@@ -54,7 +54,7 @@ class ReviewCreate(generics.CreateAPIView):
         review_user = self.request.user
         review_queryset = Review.objects.filter(watchlist=watchlist, review_user=review_user)
         if review_queryset.exists():
-            raise ValidationError("You have already reviewed this show")
+            raise ValidationError("You have already reviewed this show", code=status.HTTP_400_BAD_REQUEST)
 
         if watchlist.number_rating == 0:
             watchlist.avg_rating = serializer.validated_data['rating']
